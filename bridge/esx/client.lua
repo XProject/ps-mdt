@@ -1,9 +1,5 @@
 if Framework.initials ~= "esx" then return end
 
-local function CapitalStartLetter(str)
-    return _(str):gsub("^%l", string.upper)
-end
-
 Framework.TriggerServerCallback = Framework.object.TriggerServerCallback  --[[@as function]]
 
 Framework.GetPlayerData = Framework.object.GetPlayerData --[[@as function]]
@@ -83,10 +79,10 @@ end
 -- If you use a different fine system, you will need to change this
 function Framework.BillPlayer(targetSourceId, fineAmount)
     local job = Framework.GetPlayerJobName()
-    local jobName = CapitalStartLetter(job)
-    local jobGradeLabel = CapitalStartLetter(Framework.GetPlayerJobGradeName())
-    local firstName = CapitalStartLetter(Framework.GetPlayerFirstName())
-    local lastName = CapitalStartLetter(Framework.GetPlayerLastName())
+    local jobName = CapitalFirstLetter(job)
+    local jobGradeLabel = CapitalFirstLetter(Framework.GetPlayerJobGradeName())
+    local firstName = CapitalFirstLetter(Framework.GetPlayerFirstName())
+    local lastName = CapitalFirstLetter(Framework.GetPlayerLastName())
     TriggerServerEvent("esx_billing:sendBill", targetSourceId, ("society_%s"):format(job), ("%s Fine from %s %s %s: $%s"):format(jobName, jobGradeLabel, firstName, lastName, fineAmount), fineAmount)
 end
 
