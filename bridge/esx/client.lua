@@ -122,10 +122,6 @@ RegisterNetEvent("esx:onPlayerLogout", function()
     Framework.PlayerData = {}
 end)
 
-RegisterNetEvent("QBCore:Player:SetPlayerData", function(val)
-    Framework.PlayerData = val
-end)
-
 AddEventHandler("esx:setPlayerData", function(key, val, _)
     if GetInvokingResource() == Framework.resourceName then
         Framework.PlayerData[key] = val
