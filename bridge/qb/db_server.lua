@@ -1,3 +1,5 @@
+if Framework.initials ~= "qb" then return end
+
 DB = {}
 
 function DB.GetCitizenIDByLicense(license)
@@ -27,7 +29,7 @@ function DB.GetPlayerDataByCitizenId(id)
     local Player = Framework.GetPlayerByCitizenId(id)
     if Player ~= nil then
         playerData = {citizenid = Player.PlayerData.citizenid, charinfo = Player.PlayerData.charinfo, metadata = Player.PlayerData.metadata, job = Player.PlayerData.job}
-    else
+    else -- CHECK: isn't single supposed to return 1 column only?
         playerData = MySQL.single.await("SELECT citizenid, charinfo, job, metadata FROM players WHERE citizenid = ? LIMIT 1", { id })
     end
     return playerData

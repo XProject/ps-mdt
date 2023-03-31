@@ -49,12 +49,14 @@ end
 function Framework.GetPlayerLicensesByPlayer(player) -- TODO: maybe I should get all available licenses and loop through them to check whether player have them or not
     local _licenses, licenses = {}, {}
     local source = Framework.GetPlayerServerIdByPlayer(player)
-    TriggerEvent('esx_license:getLicenses', source, function(returnedLicenses)
+    TriggerEvent("esx_license:getLicenses", source, function(returnedLicenses)
         _licenses = returnedLicenses
     end)
-    for i = 1, #_licenses do
-        local licenseName = _licenses[i].type
-        licenses[licenseName] = true
+    if _licenses then
+        for i = 1, #_licenses do
+            local licenseName = _licenses[i].type -- or _licenses[i].name ?   we'll see
+            licenses[licenseName] = true
+        end
     end
     return licenses
 end
@@ -63,7 +65,7 @@ function Framework.GetPlayerGenderByPlayer(player)
     return player?.get("sex")
 end
 
--- if you use another phone other than NPWD, change this function's return data
+-- if you use another phone other than NPWD, change this function"s return data
 function Framework.GetPlayerPhoneNumberByPlayer(player)
     local identifier = player?.getIdentifier()
     if not identifier then return end
