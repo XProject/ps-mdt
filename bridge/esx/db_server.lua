@@ -8,7 +8,7 @@ local charsetCount = #charset
 
 local function randomCitizenId(length)
     local ret, retCount, r = {}, 1, nil
-    math.randomseed(os.clock())
+    math.randomseed(os.time())
     for _ = 1, length do
         r = math.random(1, charsetCount)
         ret[retCount] = charset:sub(r, r)
@@ -22,17 +22,17 @@ function GenerateCitizenId(source)
     local allPlayers = source and {source} or GetPlayers()
     for i = 1, #allPlayers do
         serverId = allPlayers[i]
-        local xPlayer = Framework.GetPlayerFromServerId(serverId)
+        local xPlayer = Framework.GetPlayerByServerId(serverId)
         if xPlayer and not xPlayer.getMeta()?.citizenId then
             local isUnique, uniqueId, count
             repeat
-                uniqueId = ("%s%s"):format(randomCitizenId(6))
+                uniqueId = ("%s"):format(randomCitizenId(6))
                 count = MySQL.prepare.await("SELECT COUNT(*) as count FROM users WHERE JSON_VALUE(users.metadata, \"$.citizenId\") = ?", {uniqueId})
                 isUnique = count == 0
             until isUnique
 
             xPlayer.setMeta("citizenId", uniqueId)
-            MySQL.prepare.await("UPDATE users SET metadata = JSON_SET(users.metadata, \"$.citizenId\", ?) WHERE identifier = ?", {uniqueId, xPlayer.getIdentifier()})
+            MySQL.query.await("UPDATE users SET metadata = JSON_SET(IF(metadata = \"[]\", JSON_OBJECT(), metadata), \"$.citizenId\", ?) WHERE identifier = ?", {uniqueId, xPlayer.getIdentifier()})
         end
     end
 end

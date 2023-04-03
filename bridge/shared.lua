@@ -1,4 +1,5 @@
 Framework = {}
+Framework.PlayerData = {}
 
 if GetResourceState("qb-core"):find("start") then
     Framework.initials = "qb"
