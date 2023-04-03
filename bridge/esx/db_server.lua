@@ -169,7 +169,7 @@ function DB.SearchAllVehiclesByData(data) -- TODO: alter owned_vehicles add auto
     return result
 end
 
-function DB.SearchVehicleDataByPlate(plate)
+function DB.SearchVehicleDataByPlate(plate) -- CHECK: query syntax as I'm not too knowledgeable on SQL joins...
     local result = MySQL.query.await("select ov.*, u.firstname, u.lastname, u.dateofbirth, u.sex, u.phone_number from owned_vehicles ox LEFT JOIN users u ON ov.owner = u.identifier where ov.plate = :plate LIMIT 1", { plate = TrimString(plate)})
     if result and next(result) then
         for i = 1, #result do -- compatibility with QB return data
@@ -185,4 +185,25 @@ function DB.SearchVehicleDataByPlate(plate)
         end
     end
     return result
+end
+
+function DB.GetVehicleWarrantStatusByPlate(plate) -- CHECK: query syntax as I'm not too knowledgeable on SQL joins...
+    local result = MySQL.query.await("SELECT ov.plate, JSON_VALUE(u.metadata, \"$.citizenId\") AS citizenid, m.id FROM owned_vehicles ov INNER JOIN users u ON ov.owner = u.identifier INNER JOIN mdt_convictions m ON JSON_VALUE(u.metadata, \"$.citizenId\") = m.cid WHERE m.warrant =1 AND ov.plate =?", {plate})
+    if result and result[1] then
+        local citizenid = result[1]["citizenid"]
+        local owner = DB.GetNameFromCitizenId(citizenid)
+        local incidentId = result[1]["id"]
+        return true, owner, incidentId
+    end
+    return false
+end
+
+function DB.GetVehicleOwnerByPlate(plate) -- TODO: alter owned_vehicles add auto-increment id column - CHECK: query syntax as I'm not too knowledgeable on SQL joins...
+    local result = MySQL.query.await("SELECT ov.plate, JSON_VALUE(u.metadata, \"$.citizenId\") AS citizenid, ov.id FROM owned_vehicles ov JOIN users u ON ov.owner = u.identifier WHERE ov.plate = @plate", {["@plate"] = plate})
+    if result and result[1] then
+        local citizenid = result[1]["citizenid"]
+        local owner = DB.GetNameFromCitizenId(citizenid)
+        return owner
+    end
+    return nil
 end
