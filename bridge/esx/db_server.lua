@@ -89,16 +89,16 @@ function DB.GetPlayerDataByCitizenId(citizenId)
         if playerData then -- compatibility with QB return data
             local ESXJobs = Framework.object.GetJobs()
             playerData.citizenId = citizenId
-            charinfo = {
+            charinfo = json.encode({
                 firstname = CapitalFirstLetter(playerData.firstname),
                 lastname = CapitalFirstLetter(playerData.lastname),
                 birthdate = playerData.dateofbirth,
                 gender = playerData.sex,
                 -- nationality = playerData.nationality,
                 phone = playerData.phone_number
-            }
+            })
             playerData.metadata = playerData.metadata
-            playerData.job = {
+            playerData.job = json.encode({
                 name = playerData.job,
                 label = ESXJobs?[playerData.job]?.label,
                 payment = ESXJobs?[playerData.job]?.grades?[tostring(playerData.job_grade)]?.salary,
@@ -108,7 +108,7 @@ function DB.GetPlayerDataByCitizenId(citizenId)
                     name = ESXJobs?[playerData.job]?.grades?[tostring(playerData.job_grade)]?.label,
                     level = playerData.job_grade
                 }
-            }
+            })
         end
     end
     return playerData
@@ -158,14 +158,14 @@ function DB.SearchAllPlayersByData(data, jobType) -- CHECK: query syntax as I'm 
     local result = MySQL.query.await("SELECT JSON_VALUE(u.metadata, \"$.citizenId\") AS citizenid, u.firstname, u.lastname, u.dateofbirth, u.sex, u.phone_number, md.pfp FROM users u LEFT JOIN mdt_data md on JSON_VALUE(u.metadata, \"$.citizenId\") = md.cid WHERE LOWER(CONCAT(u.firstname, \" \", u.lastname)) LIKE :query OR LOWER(JSON_VALUE(u.metadata, \"$.citizenId\")) LIKE :query AND jobtype = :jobtype LIMIT 20", { query = string.lower("%"..data.."%"), jobtype = jobType })
     if result and next(result) then
         for i = 1, #result do -- compatibility with QB return data
-            result[i].charinfo = {
+            result[i].charinfo = json.encode({
                 firstname = CapitalFirstLetter(result[i].firstname),
                 lastname = CapitalFirstLetter(result[i].lastname),
                 birthdate = result[i].dateofbirth,
                 gender = result[i].sex,
                 -- nationality = result[i].nationality,
                 phone = result[i].phone_number
-            }
+            })
         end
     end
     return result
@@ -178,51 +178,50 @@ function DB.SearchPlayerIncidentByData(data, jobType) -- CHECK: query syntax as 
     })
     if result and next(result) then
         for i = 1, #result do -- compatibility with QB return data
-            result[i].charinfo = {
+            result[i].charinfo = json.encode({
                 firstname = CapitalFirstLetter(result[i].firstname),
                 lastname = CapitalFirstLetter(result[i].lastname),
                 birthdate = result[i].dateofbirth,
                 gender = result[i].sex,
                 -- nationality = result[i].nationality,
                 phone = result[i].phone_number
-            }
+            })
         end
     end
     return result
 end
 
 function DB.SearchAllVehiclesByData(data) -- TODO: alter owned_vehicles add auto-increment id column - CHECK: query syntax as I'm not too knowledgeable on SQL joins...
-    local result =  MySQL.query.await("SELECT ov.id, JSON_VALUE(u.metadata, \"$.citizenId\") AS citizenid, ov.plate, JSON_VALUE(ov.vehicle, \"$.model\"), ov.vehicle, ov.stored, u.firstname, u.lastname, u.dateofbirth, u.sex, u.phone_number FROM `owned_vehicles` ov LEFT JOIN users u ON ov.owner = u.identifier WHERE LOWER(`plate`) LIKE :query LIMIT 25", {
+    local result =  MySQL.query.await("SELECT ov.id, JSON_VALUE(u.metadata, \"$.citizenId\") AS citizenid, ov.plate, JSON_VALUE(ov.vehicle, \"$.model\") AS vehicle, ov.vehicle AS mods, ov.stored AS state, u.firstname, u.lastname, u.dateofbirth, u.sex, u.phone_number FROM `owned_vehicles` ov LEFT JOIN users u ON ov.owner = u.identifier WHERE LOWER(`plate`) LIKE :query LIMIT 25", {
         query = string.lower("%"..data.."%")
     })
     if result and next(result) then
         for i = 1, #result do -- compatibility with QB return data
-            result[i].charinfo = {
+            result[i].charinfo = json.encode({
                 firstname = CapitalFirstLetter(result[i].firstname),
                 lastname = CapitalFirstLetter(result[i].lastname),
                 birthdate = result[i].dateofbirth,
                 gender = result[i].sex,
                 -- nationality = result[i].nationality,
                 phone = result[i].phone_number
-            }
-            result[i].state = result[i].stored
+            })
         end
     end
     return result
 end
 
 function DB.SearchVehicleDataByPlate(plate) -- CHECK: query syntax as I'm not too knowledgeable on SQL joins...
-    local result = MySQL.query.await("select ov.*, JSON_VALUE(u.metadata, \"$.citizenId\") AS citizenid, u.firstname, u.lastname, u.dateofbirth, u.sex, u.phone_number from owned_vehicles ox LEFT JOIN users u ON ov.owner = u.identifier where ov.plate = :plate LIMIT 1", { plate = TrimString(plate)})
+    local result = MySQL.query.await("select ov.id, JSON_VALUE(u.metadata, \"$.citizenId\") AS citizenid, ov.plate, JSON_VALUE(ov.vehicle, \"$.model\") AS vehicle, ov.vehicle AS mods, ov.stored AS state, u.firstname, u.lastname, u.dateofbirth, u.sex, u.phone_number from owned_vehicles ov LEFT JOIN users u ON ov.owner = u.identifier where ov.plate = :plate LIMIT 1", { plate = TrimString(plate)})
     if result and next(result) then
         for i = 1, #result do -- compatibility with QB return data
-            result[i].charinfo = {
+            result[i].charinfo = json.encode({
                 firstname = CapitalFirstLetter(result[i].firstname),
                 lastname = CapitalFirstLetter(result[i].lastname),
                 birthdate = result[i].dateofbirth,
                 gender = result[i].sex,
                 -- nationality = result[i].nationality,
                 phone = result[i].phone_number
-            }
+            })
             result[i].state = result[i].stored
         end
     end

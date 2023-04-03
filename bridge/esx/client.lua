@@ -9,10 +9,10 @@ Framework.AllVehicles = setmetatable({}, {
         local vehicleData = rawget(self, key)
         if vehicleData ~= nil then return vehicleData end
 
-        local hash = joaat(key)
+        local hash = type(key) == "string" and joaat(key) or key
         vehicleData = {
-            name = GetDisplayNameFromVehicleModel(hash),
-            brand = GetMakeNameFromVehicleModel(hash),
+            name = GetLabelText(GetDisplayNameFromVehicleModel(hash)),
+            brand = GetLabelText(GetMakeNameFromVehicleModel(hash)),
             model = key,
             hash = hash
         }

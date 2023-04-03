@@ -67,9 +67,7 @@ end
 
 -- if you use another phone other than NPWD, change this function"s return data
 function Framework.GetPlayerPhoneNumberByPlayer(player)
-    local identifier = player?.getIdentifier()
-    if not identifier then return end
-    local success, playerData = pcall(exports.npwd.getPlayerData, { identifier = identifier })
+    local success, playerData = pcall(exports.npwd.getPlayerData, {source = player?.source})
     return success and playerData?.phoneNumber
 end
 
@@ -91,7 +89,7 @@ end
 
 function Framework.GetPlayerJobObjectAsQbByPlayer(player) -- QB Style
     local job = player?.getJob()
-    if not job then return end
+    if not job then return {} end
     local jobObject = {
         name = job.name,
         label = job.label,
@@ -124,18 +122,6 @@ end
 
 function Framework.Notification(source, message, type, duration)
     return TriggerClientEvent("esx:showNotification", source, message, type, duration)
-end
-
-function Framework.UnpackJobData(data) -- QB Style
-    local job = {
-        name = data?.name,
-        label = data?.label
-    }
-    local grade = {
-        name = data?.grade_label,
-    }
-
-    return job, grade
 end
 
 AddEventHandler("esx:playerLoaded", GenerateCitizenId)
