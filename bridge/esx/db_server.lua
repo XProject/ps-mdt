@@ -43,8 +43,8 @@ function DB.GetPlayerDataByCitizenId(citizenId)
             job = Framework.GetPlayerJobObjectAsQbByPlayer(player)
         }
     else
-        playerData = MySQL.single.await("SELECT firstname, lastname, job, job_grade, metadata, dateofbirth, sex, phone_number FROM users WHERE JSON_VALUE(users.metadata, \"$.citizenId\") = ? LIMIT 1", { citizenId })
-        if playerData then
+        playerData = MySQL.query.await("SELECT firstname, lastname, job, job_grade, metadata, dateofbirth, sex, phone_number FROM users WHERE JSON_VALUE(users.metadata, \"$.citizenId\") = ? LIMIT 1", { citizenId })
+        if playerData then -- compatibility with QB return data
             local ESXJobs = Framework.object.GetJobs()
             playerData.citizenId = citizenId
             charinfo = {
@@ -104,4 +104,85 @@ function DB.GetPlayerLicenses(citizenId) -- CHECK: query syntax as I'm not too k
         end
     end
     return licenses
+end
+
+function DB.ManageLicense(citizenid, type, status) -- TODO: implement if it's properly working in OG repo
+end
+
+function DB.UpdateAllLicenses(citizenid, incomingLicenses) -- TODO: implement if it's properly working in OG repo
+end
+
+function DB.SearchAllPlayersByData(data, jobType) -- CHECK: query syntax as I'm not too knowledgeable on SQL joins...
+    local result = MySQL.query.await("SELECT JSON_VALUE(u.metadata, \"$.citizenId\"), u.firstname, u.lastname, u.dateofbirth, u.sex, u.phone_number, md.pfp FROM users u LEFT JOIN mdt_data md on JSON_VALUE(u.metadata, \"$.citizenId\") = md.cid WHERE LOWER(CONCAT(u.firstname, \" \", u.lastname)) LIKE :query OR LOWER(JSON_VALUE(u.metadata, \"$.citizenId\")) LIKE :query AND jobtype = :jobtype LIMIT 20", { query = string.lower("%"..data.."%"), jobtype = jobType })
+    if result and next(result) then
+        for i = 1, #result do -- compatibility with QB return data
+            result[i].charinfo = {
+                firstname = CapitalFirstLetter(result[i].firstname),
+                lastname = CapitalFirstLetter(result[i].lastname),
+                birthdate = result[i].dateofbirth,
+                gender = result[i].sex,
+                -- nationality = result[i].nationality,
+                phone = result[i].phone_number
+            }
+        end
+    end
+    return result
+end
+
+function DB.SearchPlayerIncidentByData(data, jobType) -- CHECK: query syntax as I'm not too knowledgeable on SQL joins... TODO: (maybe it should be merged with DB.SearchAllPlayersByData as they both select same data, except this one selects metadata extra!)
+    local result MySQL.query.await("SELECT JSON_VALUE(u.metadata, \"$.citizenId\"), u.firstname, u.lastname, u.dateofbirth, u.sex, u.phone_number, u.metadata, md.pfp from users u LEFT JOIN mdt_data md on JSON_VALUE(u.metadata, \"$.citizenId\") = md.cid WHERE LOWER(`citizenid`) LIKE :query AND `jobtype` = :jobtype LIMIT 30", {
+        query = string.lower("%"..data.."%"), -- % wildcard, needed to search for all alike results
+        jobtype = jobType
+    })
+    if result and next(result) then
+        for i = 1, #result do -- compatibility with QB return data
+            result[i].charinfo = {
+                firstname = CapitalFirstLetter(result[i].firstname),
+                lastname = CapitalFirstLetter(result[i].lastname),
+                birthdate = result[i].dateofbirth,
+                gender = result[i].sex,
+                -- nationality = result[i].nationality,
+                phone = result[i].phone_number
+            }
+        end
+    end
+    return result
+end
+
+function DB.SearchAllVehiclesByData(data) -- TODO: alter owned_vehicles add auto-increment id column - CHECK: query syntax as I'm not too knowledgeable on SQL joins...
+    local result =  MySQL.query.await("SELECT ov.id, JSON_VALUE(u.metadata, \"$.citizenId\"), ov.plate, JSON_VALUE(ov.vehicle, \"$.model\"), ov.vehicle, ov.stored, u.firstname, u.lastname, u.dateofbirth, u.sex, u.phone_number FROM `owned_vehicles` ov LEFT JOIN users u ON ov.owner = u.identifier WHERE LOWER(`plate`) LIKE :query LIMIT 25", {
+        query = string.lower("%"..data.."%")
+    })
+    if result and next(result) then
+        for i = 1, #result do -- compatibility with QB return data
+            result[i].charinfo = {
+                firstname = CapitalFirstLetter(result[i].firstname),
+                lastname = CapitalFirstLetter(result[i].lastname),
+                birthdate = result[i].dateofbirth,
+                gender = result[i].sex,
+                -- nationality = result[i].nationality,
+                phone = result[i].phone_number
+            }
+            result[i].state = result[i].stored
+        end
+    end
+    return result
+end
+
+function DB.SearchVehicleDataByPlate(plate)
+    local result = MySQL.query.await("select ov.*, u.firstname, u.lastname, u.dateofbirth, u.sex, u.phone_number from owned_vehicles ox LEFT JOIN users u ON ov.owner = u.identifier where ov.plate = :plate LIMIT 1", { plate = TrimString(plate)})
+    if result and next(result) then
+        for i = 1, #result do -- compatibility with QB return data
+            result[i].charinfo = {
+                firstname = CapitalFirstLetter(result[i].firstname),
+                lastname = CapitalFirstLetter(result[i].lastname),
+                birthdate = result[i].dateofbirth,
+                gender = result[i].sex,
+                -- nationality = result[i].nationality,
+                phone = result[i].phone_number
+            }
+            result[i].state = result[i].stored
+        end
+    end
+    return result
 end
