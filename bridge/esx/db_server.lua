@@ -38,7 +38,7 @@ function GenerateCitizenId(source)
 end
 
 MySQL.ready(function()
-    MySQL.query.await("ALTER TABLE owned_vehicles ADD COLUMN IF NOT EXISTS id INT AUTO_INCREMENT FIRST, ADD UNIQUE INDEX (id)")
+    MySQL.query.await("ALTER TABLE owned_vehicles ADD COLUMN IF NOT EXISTS id INT AUTO_INCREMENT FIRST, ADD UNIQUE INDEX IF NOT EXISTS (id)")
     DBIsReady = true
 end)
 
