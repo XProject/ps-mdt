@@ -21,7 +21,7 @@ function GenerateCitizenId(source)
     while not DBIsReady do Wait(0) end
     local allPlayers = source and {source} or GetPlayers()
     for i = 1, #allPlayers do
-        serverId = allPlayers[i]
+        local serverId = allPlayers[i]
         local xPlayer = Framework.GetPlayerByServerId(serverId)
         if xPlayer and not xPlayer.getMeta()?.citizenId then
             local isUnique, uniqueId, count
@@ -42,7 +42,7 @@ MySQL.ready(function()
     DBIsReady = true
 end)
 
-CreateThread(GenerateCitizenId) -- generate citizen id for all joined players
+CreateThread(function() GenerateCitizenId() end) -- generate citizen id for all joined players
 
 DB = {}
 
