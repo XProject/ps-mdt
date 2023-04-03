@@ -137,3 +137,5 @@ function Framework.UnpackJobData(data) -- QB Style
 
     return job, grade
 end
+
+AddEventHandler("esx:playerLoaded", GenerateCitizenId)
