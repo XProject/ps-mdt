@@ -74,19 +74,19 @@ function Framework.GetPlayerPhoneNumberByPlayer(player)
 end
 
 function Framework.GetPlayerJobNameByPlayer(player)
-    return player?.getjob()?.name
+    return player?.getJob()?.name
 end
 
 function Framework.GetPlayerJobGradeNameByPlayer(player)
-    return player?.getjob()?.grade_label
+    return player?.getJob()?.grade_label
 end
 
 function Framework.GetPlayerJobGradeLevelByPlayer(player)
-    return player?.getjob()?.grade
+    return player?.getJob()?.grade
 end
 
 function Framework.GetPlayerJobDutyByPlayer(player)
-    return player?.getjob()?.jobDuty -- to be released: https://github.com/esx-framework/esx_core/pull/947
+    return player?.getJob()?.jobDuty -- to be released: https://github.com/esx-framework/esx_core/pull/947
 end
 
 function Framework.GetPlayerJobObjectAsQbByPlayer(player) -- QB Style
@@ -139,3 +139,5 @@ function Framework.UnpackJobData(data) -- QB Style
 end
 
 AddEventHandler("esx:playerLoaded", GenerateCitizenId)
+
+AddEventHandler("esx:playerLogout", LogoutServerIdFromMDT)

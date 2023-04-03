@@ -118,7 +118,6 @@ RegisterNetEvent("esx:playerLoaded", function(xPlayer)
 end)
 
 RegisterNetEvent("esx:onPlayerLogout", function()
-    TriggerServerEvent("ps-mdt:server:OnPlayerUnload")
     Framework.PlayerData = {}
 end)
 
