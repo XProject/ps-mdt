@@ -4,7 +4,7 @@ For all support questions, ask in our [Discord](https://www.discord.gg/projectsl
 
 ## Dependencies
 
-- [QBCore](https://github.com/qbcore-framework/qb-core)
+- [QBCore](https://github.com/qbcore-framework/qb-core) | or | [ESX 1.9.4+](https://github.com/esx-framework/esx_core/tree/main/%5Bcore%5D/es_extended) & [esx_license](https://github.com/esx-framework/esx_license)
 - [ps-dispatch](https://github.com/Project-Sloth/ps-dispatch)
 - [oxmysql](https://github.com/overextended/oxmysql)
 - [qb-apartments](https://github.com/qbcore-framework/qb-apartments) | [Config](https://github.com/Project-Sloth/ps-mdt/blob/0ce2ab88d2ca7b0a49abfb3f7f8939d0769c7b73/shared/config.lua#L3) available to enable or disable. 
